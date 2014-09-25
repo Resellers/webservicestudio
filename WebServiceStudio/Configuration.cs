@@ -81,12 +81,20 @@
 
         public static void SaveMasterConfig()
         {
-            FileStream stream = File.OpenWrite(GetConfigFileName());
-            StreamWriter writer = new StreamWriter(stream);
-            new XmlSerializer(typeof(Configuration)).Serialize((TextWriter) writer, masterConfig);
-            stream.SetLength(stream.Position);
-            stream.Flush();
-            stream.Close();
+            try
+            {
+                using (FileStream stream = File.OpenWrite(GetConfigFileName()))
+                {
+                    StreamWriter writer = new StreamWriter(stream);
+                    new XmlSerializer(typeof (Configuration)).Serialize((TextWriter) writer, masterConfig);
+                    stream.SetLength(stream.Position);
+                }
+            }
+            catch 
+            {
+               
+            }
+  
         }
 
         [Browsable(false)]

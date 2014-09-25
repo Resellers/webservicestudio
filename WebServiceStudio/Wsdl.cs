@@ -296,6 +296,12 @@ namespace WebServiceStudio
       {
         protocol.Credentials = CredentialCache.DefaultCredentials;
       }
+      if (!string.IsNullOrEmpty(CertName))
+      {
+        X509Certificate clientCert = GetClientCertificate(CertName, StoreLocation.LocalMachine);
+        protocol.ClientCertificates.Add(clientCert);
+      }
+
       if ((this.WsdlProperties.ProxyServer != null) && (this.WsdlProperties.ProxyServer.Length != 0))
       {
         IWebProxy proxy = null;
@@ -463,11 +469,7 @@ namespace WebServiceStudio
       try
       {
         DiscoveryClientProtocol client = this.CreateDiscoveryClient();
-        if (!string.IsNullOrEmpty(CertName))
-        {
-          X509Certificate _clientCert = GetClientCertificate(CertName, StoreLocation.LocalMachine);
-          client.ClientCertificates.Add(_clientCert);
-        }
+
         this.ProcessLocalPaths(client, localPaths, schemas, descriptions);
         this.ProcessRemoteUrls(client, urls, schemas, descriptions);
       }

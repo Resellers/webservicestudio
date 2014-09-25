@@ -96,6 +96,8 @@ namespace WebServiceStudio
       this.richMessage.Font = Configuration.MasterConfig.UiSettings.MessageFont;
       this.richRequest.Font = Configuration.MasterConfig.UiSettings.ReqRespFont;
       this.richResponse.Font = Configuration.MasterConfig.UiSettings.ReqRespFont;
+      this.txtCertName.Text = Configuration.MasterConfig.InvokeSettings.CertName;
+
       #endregion
 
     }
@@ -954,17 +956,21 @@ namespace WebServiceStudio
       if (currentMethodProperty != null)
       {
         HttpWebClientProtocol proxy = currentMethodProperty.GetProxyProperty().GetProxy();
-        if (!string.IsNullOrEmpty(txtCertName.Text))
-        {
-          X509Certificate _clientCert = wsdl.GetClientCertificate(txtCertName.Text, StoreLocation.LocalMachine);
-          proxy.ClientCertificates.Add(_clientCert);
-        }
+
         RequestProperties properties = new RequestProperties(proxy);
         try
         {
           MethodInfo method = currentMethodProperty.GetMethod();
           System.Type declaringType = method.DeclaringType;
           WSSWebRequest.RequestTrace = properties;
+
+          if (!string.IsNullOrEmpty(txtCertName.Text))
+          {
+            X509Certificate _clientCert = wsdl.GetClientCertificate(txtCertName.Text, StoreLocation.LocalMachine);
+            WSSWebRequest.ClientCertificates = new X509CertificateCollection();
+            WSSWebRequest.ClientCertificates.Add(_clientCert);
+          }
+
           object[] parameters = currentMethodProperty.ReadChildren() as object[];
           object result = method.Invoke(proxy, BindingFlags.Public, null, parameters, null);
           this.treeOutput.Nodes.Clear();
@@ -978,7 +984,7 @@ namespace WebServiceStudio
         {
           TabPage selectedTab = this.tabMain.SelectedTab;
           this.tabMain.SelectedTab = this.tabPageMessage;
-          ShowMessage(this,MessageType.Failure, ex.Message);
+          ShowMessage(this, MessageType.Failure, ex.Message);
           ShowMessage(this, MessageType.Failure, ex.StackTrace);
           ShowMessage(this, MessageType.Failure, ex.InnerException.Message);
 
@@ -1034,7 +1040,7 @@ namespace WebServiceStudio
 
     private void menuItemAbout_Click(object sender, EventArgs e)
     {
-      MessageBox.Show(this, ".NET Web Service Studio\nProject home www.codeplex.com/WebServiceStudio \n Ideas and suggestions - Please mailto:adnanmasood@gmail.com");
+      MessageBox.Show(this, ".NET Web Service Studio\n Fork me on github https://github.com/Resellers/webservicestudio");
     }
 
     private void menuItemExit_Click(object sender, EventArgs e)
@@ -1495,6 +1501,7 @@ namespace WebServiceStudio
         this.FillInvokeTab();
         this.tabMain.SelectedTab = this.tabPageInvoke;
         this.ShowMessageInternal(this, MessageType.Success, "Ready To Invoke");
+        Configuration.MasterConfig.InvokeSettings.CertName = this.txtCertName.Text;
         Configuration.MasterConfig.InvokeSettings.AddUri(this.textEndPointUri.Text);
         this.textEndPointUri.Items.Clear();
         this.textEndPointUri.Items.AddRange(Configuration.MasterConfig.InvokeSettings.RecentlyUsedUris);

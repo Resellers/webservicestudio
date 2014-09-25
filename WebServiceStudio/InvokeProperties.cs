@@ -9,6 +9,7 @@
     public class InvokeProperties
     {
         private ArrayList uris = new ArrayList();
+        private string certname;
 
         public void AddUri(string uri)
         {
@@ -38,6 +39,21 @@
                 }
             }
         }
+
+        [Browsable(false), XmlElement("CertName")]
+        public string CertName
+        {
+            get
+            {
+                return this.certname;
+            }
+
+            set
+            {
+                certname = value;
+            }
+        }
+
     }
 }
 

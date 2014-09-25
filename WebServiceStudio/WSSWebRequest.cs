@@ -1,4 +1,6 @@
-﻿namespace WebServiceStudio
+﻿using System.Security.Cryptography.X509Certificates;
+
+namespace WebServiceStudio
 {
     using System;
     using System.IO;
@@ -8,11 +10,11 @@
     {
         private static RequestProperties requestProperties;
         private MemoryStream stream;
-        private WebRequest webRequest;
+        private HttpWebRequest webRequest;
 
         public WSSWebRequest(WebRequest webRequest)
         {
-            this.webRequest = webRequest;
+            this.webRequest = (HttpWebRequest)webRequest;
             this.stream = new NoCloseMemoryStream();
         }
 
@@ -51,7 +53,8 @@
             {
                 requestProperties.Method = RequestProperties.HttpMethod.POST;
                 Stream requestStream = this.webRequest.GetRequestStream();
-                requestStream.Write(this.stream.GetBuffer(), 0, (int) this.stream.Length);
+
+                requestStream.Write(this.stream.GetBuffer(), 0, (int)this.stream.Length);
                 requestStream.Close();
                 this.stream.Position = 0L;
                 requestProperties.requestPayLoad = MessageTracer.ReadMessage(this.stream, requestProperties.contentType);
@@ -62,6 +65,10 @@
             }
             try
             {
+                if (ClientCertificates != null)
+                {
+                    this.webRequest.ClientCertificates.Add(ClientCertificates[0]);
+                }
                 WSSWebResponse response2 = new WSSWebResponse(this.webRequest.GetResponse());
                 requestProperties.responsePayLoad = response2.DumpResponse();
                 response4 = response2;
@@ -87,131 +94,70 @@
 
         public override string ConnectionGroupName
         {
-            get
-            {
-                return this.webRequest.ConnectionGroupName;
-            }
-            set
-            {
-                this.webRequest.ConnectionGroupName = value;
-            }
+            get { return this.webRequest.ConnectionGroupName; }
+            set { this.webRequest.ConnectionGroupName = value; }
         }
 
         public override long ContentLength
         {
-            get
-            {
-                return this.webRequest.ContentLength;
-            }
-            set
-            {
-                this.webRequest.ContentLength = value;
-            }
+            get { return this.webRequest.ContentLength; }
+            set { this.webRequest.ContentLength = value; }
         }
 
         public override string ContentType
         {
-            get
-            {
-                return this.webRequest.ContentType;
-            }
-            set
-            {
-                this.webRequest.ContentType = value;
-            }
+            get { return this.webRequest.ContentType; }
+            set { this.webRequest.ContentType = value; }
         }
 
         public override ICredentials Credentials
         {
-            get
-            {
-                return this.webRequest.Credentials;
-            }
-            set
-            {
-                this.webRequest.Credentials = value;
-            }
+            get { return this.webRequest.Credentials; }
+            set { this.webRequest.Credentials = value; }
         }
 
         public override WebHeaderCollection Headers
         {
-            get
-            {
-                return this.webRequest.Headers;
-            }
-            set
-            {
-                this.webRequest.Headers = value;
-            }
+            get { return this.webRequest.Headers; }
+            set { this.webRequest.Headers = value; }
         }
 
         public override string Method
         {
-            get
-            {
-                return this.webRequest.Method;
-            }
-            set
-            {
-                this.webRequest.Method = value;
-            }
+            get { return this.webRequest.Method; }
+            set { this.webRequest.Method = value; }
         }
 
         public override bool PreAuthenticate
         {
-            get
-            {
-                return this.webRequest.PreAuthenticate;
-            }
-            set
-            {
-                this.webRequest.PreAuthenticate = value;
-            }
+            get { return this.webRequest.PreAuthenticate; }
+            set { this.webRequest.PreAuthenticate = value; }
         }
 
         public override IWebProxy Proxy
         {
-            get
-            {
-                return this.webRequest.Proxy;
-            }
-            set
-            {
-                this.webRequest.Proxy = value;
-            }
+            get { return this.webRequest.Proxy; }
+            set { this.webRequest.Proxy = value; }
         }
 
         internal static RequestProperties RequestTrace
         {
-            get
-            {
-                return requestProperties;
-            }
-            set
-            {
-                requestProperties = value;
-            }
+            get { return requestProperties; }
+            set { requestProperties = value; }
         }
 
         public override Uri RequestUri
         {
-            get
-            {
-                return this.webRequest.RequestUri;
-            }
+            get { return this.webRequest.RequestUri; }
         }
 
         public override int Timeout
         {
-            get
-            {
-                return this.webRequest.Timeout;
-            }
-            set
-            {
-                this.webRequest.Timeout = value;
-            }
+            get { return this.webRequest.Timeout; }
+            set { this.webRequest.Timeout = value; }
         }
+
+        public static X509CertificateCollection ClientCertificates { get; set; }
     }
 }
 
